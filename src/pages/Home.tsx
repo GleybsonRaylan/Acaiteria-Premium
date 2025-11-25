@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ShoppingBag, Sparkles } from "lucide-react";
 import ActionButton from "@/components/ActionButton";
+import Logo from "@/assets/logo.jpg";
 const Home = () => {
   const navigate = useNavigate();
   return (
