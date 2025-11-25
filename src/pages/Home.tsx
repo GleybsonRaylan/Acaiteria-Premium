@@ -1,16 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { ShoppingBag, Sparkles } from "lucide-react";
 import ActionButton from "@/components/ActionButton";
-import Logo from "@/assets/logo.jpg";
+import Logo from "@/assets/logo.jpg"; // <-- IMPORTA A IMAGEM CERTO
+
 const Home = () => {
   const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary via-secondary to-primary flex flex-col">
       {/* Header com Logo */}
       <header className="pt-8 pb-6 px-6 text-center animate-fade-in">
         <div className="w-32 h-32 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-2xl overflow-hidden">
           <img
-            src="src/assets/logo.JPG"
+            src={Logo} // <-- USA O IMPORT, NÃO O CAMINHO
             alt="Logo"
             className="w-full h-full object-contain p-2"
           />
@@ -34,6 +36,7 @@ const Home = () => {
               src="/lovable-uploads/17512233-65c9-4d5a-a3d7-0f59f4536c28.png"
             />
           </div>
+
           <div className="aspect-square rounded-2xl bg-white/10 backdrop-blur-sm border-2 border-white/20 overflow-hidden shadow-xl">
             <img
               alt="Açaí com frutas"
@@ -84,4 +87,5 @@ const Home = () => {
     </div>
   );
 };
+
 export default Home;
