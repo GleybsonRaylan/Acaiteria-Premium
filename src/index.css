@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Premium Açaiteria Brand Colors */
+    --brand-primary: 280 100% 16%;        /* #3B0050 - Roxo escuro */
+    --brand-secondary: 283 99% 33%;       /* #74019E - Roxo médio */
+    --brand-tertiary: 48 100% 50%;        /* #FFD100 - Amarelo */
+    --brand-quaternary: 118 84% 23%;      /* #0F6D0D - Verde */
+    
+    /* Base Colors */
+    --background: 0 0% 98%;
+    --foreground: 280 100% 16%;
+    
+    /* Card System */
+    --card: 0 0% 100%;
+    --card-foreground: 280 100% 16%;
+    --card-hover: 280 15% 97%;
+    
+    /* Primary (Roxo Escuro) */
+    --primary: 280 100% 16%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary (Roxo Médio) */
+    --secondary: 283 99% 33%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Accent (Amarelo) */
+    --accent: 48 100% 50%;
+    --accent-foreground: 280 100% 16%;
+    
+    /* Success (Verde) */
+    --success: 118 84% 23%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Muted */
+    --muted: 280 10% 95%;
+    --muted-foreground: 280 5% 45%;
+    
+    /* Borders & Inputs */
+    --border: 280 15% 90%;
+    --input: 280 15% 90%;
+    --ring: 283 99% 33%;
+    
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--brand-primary)), hsl(var(--brand-secondary)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--brand-tertiary)), hsl(48 100% 60%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(280 15% 98%));
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px hsl(280 100% 16% / 0.08);
+    --shadow-md: 0 4px 16px hsl(280 100% 16% / 0.12);
+    --shadow-lg: 0 8px 24px hsl(280 100% 16% / 0.16);
+    --shadow-accent: 0 4px 16px hsl(48 100% 50% / 0.25);
+    
+    /* Radius */
+    --radius: 1rem;
+    --radius-sm: 0.75rem;
+    --radius-lg: 1.5rem;
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+  
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+  }
+  
+  /* Mobile App Feel */
+  #root {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Touch-friendly */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom animations */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
