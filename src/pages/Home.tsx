@@ -81,7 +81,13 @@ const Home = () => {
           Fazer meu pedido
         </ActionButton>
         <p className="text-center text-white/80 text-sm mt-3 font-medium">
-          Monte seu açaí do seu jeito! ✨
+          Desenvolvido por{" "}
+          <a
+            href="https://gleybsonferreiradev.vercel.app/?fbclid=PAZXh0bgNhZW0CMTEAAafvAbrbe7x_5dzxOrky67Ljo1TStoz9FXYTvf6h3Xm8GShcNTRuQsxSNU3u_w_aem_fgXLK2ri4j9jL6mITalLXA"
+            className="text-[aqua] font-semibold"
+          >
+            Gleybson Ferreira
+          </a>
         </p>
       </div>
     </div>

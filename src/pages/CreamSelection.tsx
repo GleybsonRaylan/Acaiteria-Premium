@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, IceCream } from 'lucide-react';
-import { useOrder } from '@/contexts/OrderContext';
-import StepIndicator from '@/components/StepIndicator';
-import SelectionCard from '@/components/SelectionCard';
-import ActionButton from '@/components/ActionButton';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, IceCream } from "lucide-react";
+import { useOrder } from "@/contexts/OrderContext";
+import StepIndicator from "@/components/StepIndicator";
+import SelectionCard from "@/components/SelectionCard";
+import ActionButton from "@/components/ActionButton";
+import { toast } from "sonner";
 
 const creams = [
-  'Açaí',
-  'Cupuaçu',
-  'Ninho com Oreo',
-  'Ninho com Nutella',
-  'Ninho',
-  'Chocolate com Ovomaltine',
-  'Moranguito',
-  'Unicórnios',
+  "Açaí",
+  "Cupuaçu",
+  "Ninho com Oreo",
+  "Ninho com Nutella",
+  "Ninho",
+  "Chocolate com Ovomaltine",
+  "Moranguito",
+  "Unicórnios",
 ];
 
 const CreamSelection = () => {
@@ -26,7 +26,7 @@ const CreamSelection = () => {
 
   const handleToggle = (cream: string) => {
     if (selected.includes(cream)) {
-      setSelected(selected.filter(c => c !== cream));
+      setSelected(selected.filter((c) => c !== cream));
     } else {
       if (selected.length >= MAX_SELECTIONS) {
         toast.error(`Você pode escolher no máximo ${MAX_SELECTIONS} cremes`);
@@ -38,12 +38,12 @@ const CreamSelection = () => {
 
   const handleContinue = () => {
     if (selected.length === 0) {
-      toast.error('Selecione pelo menos um creme');
+      toast.error("Selecione pelo menos um creme");
       return;
     }
     updateCreams(selected);
-    toast.success('Cremes selecionados!');
-    navigate('/acompanhamentos');
+    toast.success("Cremes selecionados!");
+    navigate("/acompanhamentos");
   };
 
   return (
@@ -60,7 +60,8 @@ const CreamSelection = () => {
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Escolha os cremes</h1>
             <p className="text-sm opacity-90">
-              Selecione até {MAX_SELECTIONS} sabores ({selected.length}/{MAX_SELECTIONS})
+              Selecione até {MAX_SELECTIONS} sabores ({selected.length}/
+              {MAX_SELECTIONS})
             </p>
           </div>
           <IceCream className="w-8 h-8 text-accent" />
@@ -75,7 +76,9 @@ const CreamSelection = () => {
             key={cream}
             selected={selected.includes(cream)}
             onClick={() => handleToggle(cream)}
-            disabled={!selected.includes(cream) && selected.length >= MAX_SELECTIONS}
+            disabled={
+              !selected.includes(cream) && selected.length >= MAX_SELECTIONS
+            }
           >
             <div className="text-center">
               <h3 className="text-lg font-bold text-foreground">{cream}</h3>
