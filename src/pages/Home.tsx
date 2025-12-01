@@ -33,7 +33,7 @@ const Home = () => {
             <img
               alt="Açaí delicioso"
               className="w-full h-full object-cover"
-              src="/lovable-uploads/17512233-65c9-4d5a-a3d7-0f59f4536c28.png"
+              src="."
             />
           </div>
 
@@ -41,7 +41,7 @@ const Home = () => {
             <img
               alt="Açaí com frutas"
               className="w-full h-full object-cover"
-              src="/lovable-uploads/46005e10-a1eb-41db-bc23-38c1b25a0002.png"
+              src="."
             />
           </div>
         </div>
