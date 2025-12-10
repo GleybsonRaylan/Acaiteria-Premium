@@ -1,41 +1,66 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Bike, Store, Banknote } from 'lucide-react';
-import { useOrder } from '@/contexts/OrderContext';
-import StepIndicator from '@/components/StepIndicator';
-import ActionButton from '@/components/ActionButton';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  MapPin,
+  Bike,
+  Store,
+  Banknote,
+  CreditCard,
+  QrCode,
+} from "lucide-react";
+import { useOrder } from "@/contexts/OrderContext";
+import StepIndicator from "@/components/StepIndicator";
+import ActionButton from "@/components/ActionButton";
+import { toast } from "sonner";
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { order, updateDelivery, updateChange, getTotalPrice } = useOrder();
-  const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>(
-    order.delivery ? 'delivery' : 'pickup'
+  const { order, updateDelivery, updateChange, updatePayment, getTotalPrice } =
+    useOrder();
+  const [deliveryType, setDeliveryType] = useState<"pickup" | "delivery">(
+    order.delivery ? "delivery" : "pickup"
   );
   const [street, setStreet] = useState(order.street);
   const [neighborhood, setNeighborhood] = useState(order.neighborhood);
   const [houseNumber, setHouseNumber] = useState(order.houseNumber);
   const [needsChange, setNeedsChange] = useState(order.needsChange);
   const [changeFor, setChangeFor] = useState(order.changeFor.toString());
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "card" | "cash">(
+    order.paymentMethod || "cash"
+  );
 
   const baseTotal = getTotalPrice();
-  const deliveryFee = deliveryType === 'delivery' ? 2 : 0;
+  const deliveryFee = deliveryType === "delivery" ? 2 : 0;
   const total = baseTotal + deliveryFee;
 
   const handleContinue = () => {
-    if (deliveryType === 'delivery' && (!street.trim() || !neighborhood.trim() || !houseNumber.trim())) {
-      toast.error('Por favor, preencha todos os campos do endereço');
+    if (
+      deliveryType === "delivery" &&
+      (!street.trim() || !neighborhood.trim() || !houseNumber.trim())
+    ) {
+      toast.error("Por favor, preencha todos os campos do endereço");
       return;
     }
 
-    if (needsChange && (!changeFor || parseFloat(changeFor) <= total)) {
-      toast.error('O valor para troco deve ser maior que o total do pedido');
+    if (
+      paymentMethod === "cash" &&
+      needsChange &&
+      (!changeFor || parseFloat(changeFor) <= total)
+    ) {
+      toast.error("O valor para troco deve ser maior que o total do pedido");
       return;
     }
 
-    updateDelivery(deliveryType === 'delivery', street, neighborhood, houseNumber);
+    updateDelivery(
+      deliveryType === "delivery",
+      street,
+      neighborhood,
+      houseNumber
+    );
     updateChange(needsChange, parseFloat(changeFor) || 0);
-    navigate('/resumo');
+    updatePayment(paymentMethod); // ← AGORA ESTA FUNÇÃO EXISTE!
+    navigate("/resumo");
   };
 
   return (
@@ -63,27 +88,154 @@ const Checkout = () => {
         <div className="bg-gradient-to-br from-secondary to-primary rounded-2xl p-6 text-white shadow-lg">
           <p className="text-sm opacity-90 mb-1">Total do pedido</p>
           <p className="text-4xl font-black">R$ {total.toFixed(2)}</p>
-          {deliveryType === 'delivery' && (
-            <p className="text-sm mt-2 opacity-90">Incluindo taxa de entrega (R$ 2,00)</p>
+          {deliveryType === "delivery" && (
+            <p className="text-sm mt-2 opacity-90">
+              Incluindo taxa de entrega (R$ 2,00)
+            </p>
           )}
         </div>
+
+        {/* Método de pagamento */}
+        <div className="space-y-3">
+          <label className="block text-sm font-bold text-foreground mb-2">
+            Como você quer pagar?
+          </label>
+
+          <button
+            onClick={() => setPaymentMethod("pix")}
+            className={`w-full p-4 rounded-lg border-2 transition-all ${
+              paymentMethod === "pix"
+                ? "border-success bg-success/10"
+                : "border-border bg-card"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <QrCode
+                className={`w-6 h-6 ${
+                  paymentMethod === "pix"
+                    ? "text-success"
+                    : "text-muted-foreground"
+                }`}
+              />
+              <div className="text-left flex-1">
+                <p className="font-bold text-foreground">PIX</p>
+                <p className="text-sm text-muted-foreground">
+                  Pagamento digital
+                </p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setPaymentMethod("card")}
+            className={`w-full p-4 rounded-lg border-2 transition-all ${
+              paymentMethod === "card"
+                ? "border-success bg-success/10"
+                : "border-border bg-card"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <CreditCard
+                className={`w-6 h-6 ${
+                  paymentMethod === "card"
+                    ? "text-success"
+                    : "text-muted-foreground"
+                }`}
+              />
+              <div className="text-left flex-1">
+                <p className="font-bold text-foreground">Cartão</p>
+                <p className="text-sm text-muted-foreground">
+                  Débito ou Crédito
+                </p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setPaymentMethod("cash")}
+            className={`w-full p-4 rounded-lg border-2 transition-all ${
+              paymentMethod === "cash"
+                ? "border-success bg-success/10"
+                : "border-border bg-card"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Banknote
+                className={`w-6 h-6 ${
+                  paymentMethod === "cash"
+                    ? "text-success"
+                    : "text-muted-foreground"
+                }`}
+              />
+              <div className="text-left flex-1">
+                <p className="font-bold text-foreground">Dinheiro</p>
+                <p className="text-sm text-muted-foreground">
+                  Pagamento na entrega
+                </p>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {/* Troco (apenas para dinheiro) */}
+        {paymentMethod === "cash" && (
+          <div className="space-y-3 animate-slide-up">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={needsChange}
+                onChange={(e) => setNeedsChange(e.target.checked)}
+                className="w-5 h-5 rounded accent-secondary"
+              />
+              <span className="font-bold text-foreground">
+                <Banknote className="w-4 h-4 inline mr-1" />
+                Preciso de troco
+              </span>
+            </label>
+
+            {needsChange && (
+              <div className="animate-slide-up">
+                <input
+                  type="number"
+                  value={changeFor}
+                  onChange={(e) => setChangeFor(e.target.value)}
+                  placeholder="Valor que você vai pagar"
+                  className="w-full p-4 rounded-lg border-2 border-input bg-card text-foreground focus:border-secondary focus:outline-none text-lg"
+                  step="0.01"
+                  min={total + 0.01}
+                />
+                {changeFor && parseFloat(changeFor) > total && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Troco: R$ {(parseFloat(changeFor) - total).toFixed(2)}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Tipo de entrega */}
         <div className="space-y-3">
           <label className="block text-sm font-bold text-foreground mb-2">
             Como você quer receber?
           </label>
-          
+
           <button
-            onClick={() => setDeliveryType('pickup')}
+            onClick={() => setDeliveryType("pickup")}
             className={`w-full p-4 rounded-lg border-2 transition-all ${
-              deliveryType === 'pickup'
-                ? 'border-success bg-success/10'
-                : 'border-border bg-card'
+              deliveryType === "pickup"
+                ? "border-success bg-success/10"
+                : "border-border bg-card"
             }`}
           >
             <div className="flex items-center gap-3">
-              <Store className={`w-6 h-6 ${deliveryType === 'pickup' ? 'text-success' : 'text-muted-foreground'}`} />
+              <Store
+                className={`w-6 h-6 ${
+                  deliveryType === "pickup"
+                    ? "text-success"
+                    : "text-muted-foreground"
+                }`}
+              />
               <div className="text-left flex-1">
                 <p className="font-bold text-foreground">Retirar no local</p>
                 <p className="text-sm text-muted-foreground">Sem taxa</p>
@@ -92,15 +244,21 @@ const Checkout = () => {
           </button>
 
           <button
-            onClick={() => setDeliveryType('delivery')}
+            onClick={() => setDeliveryType("delivery")}
             className={`w-full p-4 rounded-lg border-2 transition-all ${
-              deliveryType === 'delivery'
-                ? 'border-success bg-success/10'
-                : 'border-border bg-card'
+              deliveryType === "delivery"
+                ? "border-success bg-success/10"
+                : "border-border bg-card"
             }`}
           >
             <div className="flex items-center gap-3">
-              <Bike className={`w-6 h-6 ${deliveryType === 'delivery' ? 'text-success' : 'text-muted-foreground'}`} />
+              <Bike
+                className={`w-6 h-6 ${
+                  deliveryType === "delivery"
+                    ? "text-success"
+                    : "text-muted-foreground"
+                }`}
+              />
               <div className="text-left flex-1">
                 <p className="font-bold text-foreground">Delivery</p>
                 <p className="text-sm text-muted-foreground">+ R$ 2,00</p>
@@ -110,7 +268,7 @@ const Checkout = () => {
         </div>
 
         {/* Endereço */}
-        {deliveryType === 'delivery' && (
+        {deliveryType === "delivery" && (
           <div className="space-y-3 animate-slide-up">
             <label className="block text-sm font-bold text-foreground">
               <MapPin className="w-4 h-4 inline mr-1" />
@@ -139,41 +297,6 @@ const Checkout = () => {
             />
           </div>
         )}
-
-        {/* Troco */}
-        <div className="space-y-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={needsChange}
-              onChange={(e) => setNeedsChange(e.target.checked)}
-              className="w-5 h-5 rounded accent-secondary"
-            />
-            <span className="font-bold text-foreground">
-              <Banknote className="w-4 h-4 inline mr-1" />
-              Preciso de troco
-            </span>
-          </label>
-
-          {needsChange && (
-            <div className="animate-slide-up">
-              <input
-                type="number"
-                value={changeFor}
-                onChange={(e) => setChangeFor(e.target.value)}
-                placeholder="Valor que você vai pagar"
-                className="w-full p-4 rounded-lg border-2 border-input bg-card text-foreground focus:border-secondary focus:outline-none text-lg"
-                step="0.01"
-                min={total + 0.01}
-              />
-              {changeFor && parseFloat(changeFor) > total && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  Troco: R$ {(parseFloat(changeFor) - total).toFixed(2)}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Footer */}

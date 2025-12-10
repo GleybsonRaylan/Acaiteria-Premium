@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 export type Size = {
   id: string;
@@ -6,6 +6,7 @@ export type Size = {
   price: number;
 };
 
+// Atualize o tipo OrderData para incluir paymentMethod
 export type OrderData = {
   size: Size | null;
   creams: string[];
@@ -19,8 +20,10 @@ export type OrderData = {
   houseNumber: string;
   needsChange: boolean;
   changeFor: number;
+  paymentMethod: "pix" | "card" | "cash"; // Adicione esta linha
 };
 
+// Atualize o tipo OrderContextType para incluir updatePayment
 type OrderContextType = {
   order: OrderData;
   updateSize: (size: Size) => void;
@@ -29,14 +32,21 @@ type OrderContextType = {
   updateSyrups: (syrups: string[]) => void;
   updateFruits: (fruits: string[]) => void;
   updateExtras: (extras: Array<{ name: string; price: number }>) => void;
-  updateDelivery: (delivery: boolean, street: string, neighborhood: string, houseNumber: string) => void;
+  updateDelivery: (
+    delivery: boolean,
+    street: string,
+    neighborhood: string,
+    houseNumber: string
+  ) => void;
   updateChange: (needsChange: boolean, changeFor: number) => void;
+  updatePayment: (paymentMethod: "pix" | "card" | "cash") => void; // Adicione esta linha
   getTotalPrice: () => number;
   resetOrder: () => void;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
+// Atualize o initialOrder para incluir paymentMethod
 const initialOrder: OrderData = {
   size: null,
   creams: [],
@@ -45,66 +55,83 @@ const initialOrder: OrderData = {
   fruits: [],
   extras: [],
   delivery: false,
-  street: '',
-  neighborhood: '',
-  houseNumber: '',
+  street: "",
+  neighborhood: "",
+  houseNumber: "",
   needsChange: false,
   changeFor: 0,
+  paymentMethod: "cash", // Adicione esta linha
 };
 
 export const OrderProvider = ({ children }: { children: ReactNode }) => {
   const [order, setOrder] = useState<OrderData>(initialOrder);
 
   const updateSize = (size: Size) => {
-    setOrder(prev => ({ ...prev, size }));
+    setOrder((prev) => ({ ...prev, size }));
   };
 
   const updateCreams = (creams: string[]) => {
-    setOrder(prev => ({ ...prev, creams }));
+    setOrder((prev) => ({ ...prev, creams }));
   };
 
   const updateToppings = (toppings: string[]) => {
-    setOrder(prev => ({ ...prev, toppings }));
+    setOrder((prev) => ({ ...prev, toppings }));
   };
 
   const updateSyrups = (syrups: string[]) => {
-    setOrder(prev => ({ ...prev, syrups }));
+    setOrder((prev) => ({ ...prev, syrups }));
   };
 
   const updateFruits = (fruits: string[]) => {
-    setOrder(prev => ({ ...prev, fruits }));
+    setOrder((prev) => ({ ...prev, fruits }));
   };
 
   const updateExtras = (extras: Array<{ name: string; price: number }>) => {
-    setOrder(prev => ({ ...prev, extras }));
+    setOrder((prev) => ({ ...prev, extras }));
   };
 
-  const updateDelivery = (delivery: boolean, street: string, neighborhood: string, houseNumber: string) => {
-    setOrder(prev => ({ ...prev, delivery, street, neighborhood, houseNumber }));
+  const updateDelivery = (
+    delivery: boolean,
+    street: string,
+    neighborhood: string,
+    houseNumber: string
+  ) => {
+    setOrder((prev) => ({
+      ...prev,
+      delivery,
+      street,
+      neighborhood,
+      houseNumber,
+    }));
   };
 
   const updateChange = (needsChange: boolean, changeFor: number) => {
-    setOrder(prev => ({ ...prev, needsChange, changeFor }));
+    setOrder((prev) => ({ ...prev, needsChange, changeFor }));
+  };
+
+  // Adicione esta função nova
+  const updatePayment = (paymentMethod: "pix" | "card" | "cash") => {
+    setOrder((prev) => ({ ...prev, paymentMethod }));
   };
 
   const getTotalPrice = () => {
     let total = order.size?.price || 0;
-    
+
     // Adicionar morango se selecionado
-    if (order.fruits.includes('Morango')) {
+    if (order.fruits.includes("Morango")) {
       total += 2;
     }
-    
+
     // Adicionar extras
-    order.extras.forEach(extra => {
+    order.extras.forEach((extra) => {
       total += extra.price;
     });
-    
+
     // Adicionar entrega
     if (order.delivery) {
       total += 2;
     }
-    
+
     return total;
   };
 
@@ -124,6 +151,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
         updateExtras,
         updateDelivery,
         updateChange,
+        updatePayment, // Adicione esta linha
         getTotalPrice,
         resetOrder,
       }}
@@ -136,7 +164,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
 export const useOrder = () => {
   const context = useContext(OrderContext);
   if (context === undefined) {
-    throw new Error('useOrder must be used within an OrderProvider');
+    throw new Error("useOrder must be used within an OrderProvider");
   }
   return context;
 };
