@@ -1,47 +1,60 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Cookie } from 'lucide-react';
-import { useOrder } from '@/contexts/OrderContext';
-import StepIndicator from '@/components/StepIndicator';
-import SelectionCard from '@/components/SelectionCard';
-import ActionButton from '@/components/ActionButton';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Cookie } from "lucide-react";
+import { useOrder } from "@/contexts/OrderContext";
+import StepIndicator from "@/components/StepIndicator";
+import SelectionCard from "@/components/SelectionCard";
+import ActionButton from "@/components/ActionButton";
+import { toast } from "sonner";
 
 const toppings = [
-  'Leite em pó',
-  'Farinha láctea',
-  'Farinha de amendoim',
-  'Jujuba',
-  'Granola',
-  'Amendoim',
-  'Chocoball',
-  'Paçoca',
-  'Sucrilhos',
-  'Granulado',
+  "Leite em pó",
+  "Farinha láctea",
+  "Farinha de amendoim",
+  "Granola",
+  "Amendoim",
+  "Chocoball",
+  "Paçoca",
+  "Sucrilhos",
+  "Granulado",
 ];
 
 const ToppingSelection = () => {
   const navigate = useNavigate();
-  const { order, updateToppings } = useOrder();
+  const { order, updateToppings, getLimits } = useOrder();
+  const limits = getLimits();
+
   const [selected, setSelected] = useState<string[]>(order.toppings);
 
   const handleToggle = (topping: string) => {
-    if (selected.includes(topping)) {
-      setSelected(selected.filter(t => t !== topping));
-    } else {
-      setSelected([...selected, topping]);
+    const alreadySelected = selected.includes(topping);
+
+    // Remover
+    if (alreadySelected) {
+      setSelected(selected.filter((t) => t !== topping));
+      return;
     }
+
+    // Limite de acompanhamentos
+    if (selected.length >= limits.toppings) {
+      toast.error(
+        `Você pode escolher no máximo ${limits.toppings} acompanhamentos.`
+      );
+      return;
+    }
+
+    setSelected([...selected, topping]);
   };
 
   const handleContinue = () => {
     updateToppings(selected);
-    toast.success('Acompanhamentos selecionados!');
-    navigate('/caldas');
+    toast.success("Acompanhamentos selecionados!");
+    navigate("/caldas");
   };
 
   const handleSkip = () => {
     updateToppings([]);
-    navigate('/caldas');
+    navigate("/caldas");
   };
 
   return (
@@ -55,37 +68,45 @@ const ToppingSelection = () => {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
+
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Acompanhamentos</h1>
             <p className="text-sm opacity-90">
-              Escolha quantos quiser ({selected.length} selecionados)
+              Máximo {limits.toppings} ({selected.length}/{limits.toppings})
             </p>
           </div>
+
           <Cookie className="w-8 h-8 text-accent" />
         </div>
+
         <StepIndicator currentStep={3} totalSteps={7} />
       </div>
 
       {/* Content */}
       <div className="flex-1 p-6 space-y-3 overflow-y-auto animate-slide-up">
-        {toppings.map((topping) => (
-          <SelectionCard
-            key={topping}
-            selected={selected.includes(topping)}
-            onClick={() => handleToggle(topping)}
-          >
-            <div className="text-center">
-              <h3 className="text-lg font-bold text-foreground">{topping}</h3>
-            </div>
-          </SelectionCard>
-        ))}
+        {toppings.map((topping) => {
+          const isSelected = selected.includes(topping);
+          const isDisabled = !isSelected && selected.length >= limits.toppings;
+
+          return (
+            <SelectionCard
+              key={topping}
+              selected={isSelected}
+              disabled={isDisabled}
+              onClick={() => handleToggle(topping)}
+            >
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-foreground">{topping}</h3>
+              </div>
+            </SelectionCard>
+          );
+        })}
       </div>
 
       {/* Footer */}
       <div className="p-6 bg-card border-t border-border space-y-2">
-        <ActionButton onClick={handleContinue}>
-          Continuar
-        </ActionButton>
+        <ActionButton onClick={handleContinue}>Continuar</ActionButton>
+
         {selected.length === 0 && (
           <button
             onClick={handleSkip}

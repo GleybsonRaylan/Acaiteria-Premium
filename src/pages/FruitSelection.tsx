@@ -1,50 +1,65 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Apple } from 'lucide-react';
-import { useOrder } from '@/contexts/OrderContext';
-import StepIndicator from '@/components/StepIndicator';
-import SelectionCard from '@/components/SelectionCard';
-import ActionButton from '@/components/ActionButton';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Apple } from "lucide-react";
+import { useOrder } from "@/contexts/OrderContext";
+import StepIndicator from "@/components/StepIndicator";
+import SelectionCard from "@/components/SelectionCard";
+import ActionButton from "@/components/ActionButton";
+import { toast } from "sonner";
 
 const fruits = [
-  { name: 'Banana', price: 0 },
-  { name: 'Uva', price: 0 },
-  { name: 'Abacaxi', price: 0 },
-  { name: 'Manga', price: 0 },
-  { name: 'Morango', price: 2 },
+  { name: "Banana", price: 0 },
+  { name: "Uva", price: 0 },
+  { name: "Abacaxi", price: 0 },
+  { name: "Manga", price: 0 },
+  { name: "Morango", price: 2 },
 ];
 
 const FruitSelection = () => {
   const navigate = useNavigate();
-  const { order, updateFruits } = useOrder();
+  const { order, updateFruits, getLimits } = useOrder();
+  const limits = getLimits();
+
   const [selected, setSelected] = useState<string[]>(order.fruits);
 
   const handleToggle = (fruitName: string) => {
-    if (selected.includes(fruitName)) {
-      setSelected(selected.filter(f => f !== fruitName));
-    } else {
-      setSelected([...selected, fruitName]);
-      if (fruitName === 'Morango') {
-        toast.success('Morango adicionado (+R$ 2,00)', {
-          icon: '🍓',
-        });
-      }
+    const alreadySelected = selected.includes(fruitName);
+
+    // Remover fruta
+    if (alreadySelected) {
+      setSelected(selected.filter((f) => f !== fruitName));
+      return;
+    }
+
+    // Limite de frutas
+    if (selected.length >= limits.fruits) {
+      toast.error(`Você pode escolher no máximo ${limits.fruits} frutas.`);
+      return;
+    }
+
+    // Adicionar fruta
+    const updated = [...selected, fruitName];
+    setSelected(updated);
+
+    if (fruitName === "Morango") {
+      toast.success("Morango adicionado (+R$ 2,00)", {
+        icon: "🍓",
+      });
     }
   };
 
   const handleContinue = () => {
     updateFruits(selected);
-    toast.success('Frutas selecionadas!');
-    navigate('/adicionais');
+    toast.success("Frutas selecionadas!");
+    navigate("/adicionais");
   };
 
   const handleSkip = () => {
     updateFruits([]);
-    navigate('/adicionais');
+    navigate("/adicionais");
   };
 
-  const extraCost = selected.includes('Morango') ? 2 : 0;
+  const extraCost = selected.includes("Morango") ? 2 : 0;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -57,14 +72,17 @@ const FruitSelection = () => {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
+
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Escolha as frutas</h1>
             <p className="text-sm opacity-90">
-              Quantas quiser ({selected.length} selecionadas)
+              Máximo {limits.fruits} ({selected.length} selecionadas)
             </p>
           </div>
+
           <Apple className="w-8 h-8 text-accent" />
         </div>
+
         <StepIndicator currentStep={5} totalSteps={7} />
       </div>
 
@@ -77,7 +95,7 @@ const FruitSelection = () => {
             </p>
           </div>
         )}
-        
+
         {fruits.map((fruit) => (
           <SelectionCard
             key={fruit.name}
@@ -85,7 +103,10 @@ const FruitSelection = () => {
             onClick={() => handleToggle(fruit.name)}
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-foreground">{fruit.name}</h3>
+              <h3 className="text-lg font-bold text-foreground">
+                {fruit.name}
+              </h3>
+
               {fruit.price > 0 && (
                 <span className="text-sm font-bold text-accent">
                   +R$ {fruit.price.toFixed(2)}
@@ -98,9 +119,8 @@ const FruitSelection = () => {
 
       {/* Footer */}
       <div className="p-6 bg-card border-t border-border space-y-2">
-        <ActionButton onClick={handleContinue}>
-          Continuar
-        </ActionButton>
+        <ActionButton onClick={handleContinue}>Continuar</ActionButton>
+
         {selected.length === 0 && (
           <button
             onClick={handleSkip}

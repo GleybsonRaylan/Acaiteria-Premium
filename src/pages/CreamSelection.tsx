@@ -20,27 +20,35 @@ const creams = [
 
 const CreamSelection = () => {
   const navigate = useNavigate();
-  const { order, updateCreams } = useOrder();
+  const { order, updateCreams, getLimits } = useOrder();
+  const limits = getLimits();
+
   const [selected, setSelected] = useState<string[]>(order.creams);
-  const MAX_SELECTIONS = 2;
 
   const handleToggle = (cream: string) => {
-    if (selected.includes(cream)) {
+    const alreadySelected = selected.includes(cream);
+
+    // Remover
+    if (alreadySelected) {
       setSelected(selected.filter((c) => c !== cream));
-    } else {
-      if (selected.length >= MAX_SELECTIONS) {
-        toast.error(`Você pode escolher no máximo ${MAX_SELECTIONS} cremes`);
-        return;
-      }
-      setSelected([...selected, cream]);
+      return;
     }
+
+    // Limite de cremes
+    if (selected.length >= limits.creams) {
+      toast.error(`Você pode escolher no máximo ${limits.creams} cremes.`);
+      return;
+    }
+
+    setSelected([...selected, cream]);
   };
 
   const handleContinue = () => {
     if (selected.length === 0) {
-      toast.error("Selecione pelo menos um creme");
+      toast.error("Selecione pelo menos um creme.");
       return;
     }
+
     updateCreams(selected);
     toast.success("Cremes selecionados!");
     navigate("/acompanhamentos");
@@ -57,34 +65,39 @@ const CreamSelection = () => {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
+
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Escolha os cremes</h1>
             <p className="text-sm opacity-90">
-              Selecione até {MAX_SELECTIONS} sabores ({selected.length}/
-              {MAX_SELECTIONS})
+              Máximo {limits.creams} ({selected.length}/{limits.creams})
             </p>
           </div>
+
           <IceCream className="w-8 h-8 text-accent" />
         </div>
+
         <StepIndicator currentStep={2} totalSteps={7} />
       </div>
 
       {/* Content */}
       <div className="flex-1 p-6 space-y-3 overflow-y-auto animate-slide-up">
-        {creams.map((cream) => (
-          <SelectionCard
-            key={cream}
-            selected={selected.includes(cream)}
-            onClick={() => handleToggle(cream)}
-            disabled={
-              !selected.includes(cream) && selected.length >= MAX_SELECTIONS
-            }
-          >
-            <div className="text-center">
-              <h3 className="text-lg font-bold text-foreground">{cream}</h3>
-            </div>
-          </SelectionCard>
-        ))}
+        {creams.map((cream) => {
+          const isSelected = selected.includes(cream);
+          const isDisabled = !isSelected && selected.length >= limits.creams;
+
+          return (
+            <SelectionCard
+              key={cream}
+              selected={isSelected}
+              disabled={isDisabled}
+              onClick={() => handleToggle(cream)}
+            >
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-foreground">{cream}</h3>
+              </div>
+            </SelectionCard>
+          );
+        })}
       </div>
 
       {/* Footer */}

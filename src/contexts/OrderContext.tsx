@@ -6,7 +6,6 @@ export type Size = {
   price: number;
 };
 
-// Atualize o tipo OrderData para incluir paymentMethod
 export type OrderData = {
   size: Size | null;
   creams: string[];
@@ -20,10 +19,16 @@ export type OrderData = {
   houseNumber: string;
   needsChange: boolean;
   changeFor: number;
-  paymentMethod: "pix" | "card" | "cash"; // Adicione esta linha
+  paymentMethod: "pix" | "card" | "cash";
 };
 
-// Atualize o tipo OrderContextType para incluir updatePayment
+type Limits = {
+  creams: number;
+  toppings: number;
+  fruits: number;
+  syrups: number;
+};
+
 type OrderContextType = {
   order: OrderData;
   updateSize: (size: Size) => void;
@@ -39,14 +44,14 @@ type OrderContextType = {
     houseNumber: string
   ) => void;
   updateChange: (needsChange: boolean, changeFor: number) => void;
-  updatePayment: (paymentMethod: "pix" | "card" | "cash") => void; // Adicione esta linha
+  updatePayment: (paymentMethod: "pix" | "card" | "cash") => void;
+  getLimits: () => Limits;
   getTotalPrice: () => number;
   resetOrder: () => void;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
-// Atualize o initialOrder para incluir paymentMethod
 const initialOrder: OrderData = {
   size: null,
   creams: [],
@@ -60,14 +65,38 @@ const initialOrder: OrderData = {
   houseNumber: "",
   needsChange: false,
   changeFor: 0,
-  paymentMethod: "cash", // Adicione esta linha
+  paymentMethod: "cash",
 };
 
 export const OrderProvider = ({ children }: { children: ReactNode }) => {
   const [order, setOrder] = useState<OrderData>(initialOrder);
 
+  /* =========================
+     LIMITES POR TAMANHO
+  ========================= */
+  const getLimits = (): Limits => {
+    const sizeId = order.size?.id;
+
+    return {
+      creams: 2,
+      toppings: 5,
+      fruits: 2,
+      syrups: sizeId === "300ml" || sizeId === "400ml" ? 1 : 2,
+    };
+  };
+
+  /* =========================
+     UPDATE FUNCTIONS
+  ========================= */
   const updateSize = (size: Size) => {
-    setOrder((prev) => ({ ...prev, size }));
+    setOrder((prev) => ({
+      ...prev,
+      size,
+      creams: [],
+      toppings: [],
+      fruits: [],
+      syrups: [],
+    }));
   };
 
   const updateCreams = (creams: string[]) => {
@@ -109,25 +138,25 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     setOrder((prev) => ({ ...prev, needsChange, changeFor }));
   };
 
-  // Adicione esta função nova
   const updatePayment = (paymentMethod: "pix" | "card" | "cash") => {
     setOrder((prev) => ({ ...prev, paymentMethod }));
   };
 
+  /* =========================
+     TOTAL PRICE
+  ========================= */
   const getTotalPrice = () => {
     let total = order.size?.price || 0;
 
-    // Adicionar morango se selecionado
+    // Morango tem acréscimo
     if (order.fruits.includes("Morango")) {
       total += 2;
     }
 
-    // Adicionar extras
     order.extras.forEach((extra) => {
       total += extra.price;
     });
 
-    // Adicionar entrega
     if (order.delivery) {
       total += 2;
     }
@@ -151,7 +180,8 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
         updateExtras,
         updateDelivery,
         updateChange,
-        updatePayment, // Adicione esta linha
+        updatePayment,
+        getLimits,
         getTotalPrice,
         resetOrder,
       }}
@@ -163,7 +193,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
 
 export const useOrder = () => {
   const context = useContext(OrderContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useOrder must be used within an OrderProvider");
   }
   return context;

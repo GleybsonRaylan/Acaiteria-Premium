@@ -1,45 +1,52 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Droplet } from 'lucide-react';
-import { useOrder } from '@/contexts/OrderContext';
-import StepIndicator from '@/components/StepIndicator';
-import SelectionCard from '@/components/SelectionCard';
-import ActionButton from '@/components/ActionButton';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Droplet } from "lucide-react";
+import { useOrder } from "@/contexts/OrderContext";
+import StepIndicator from "@/components/StepIndicator";
+import SelectionCard from "@/components/SelectionCard";
+import ActionButton from "@/components/ActionButton";
+import { toast } from "sonner";
 
-const syrups = [
-  'Chocolate',
-  'Morango',
-  'Leite Condensado',
-  'Caramelo',
-  'Kiwi',
-  'Limão',
-  'Menta',
-  'Mel',
-];
+const syrups = ["Chocolate", "Morango", "Caramelo", "Leite condensado", "Mel"];
 
 const SyrupSelection = () => {
   const navigate = useNavigate();
-  const { order, updateSyrups } = useOrder();
+  const { order, updateSyrups, getLimits } = useOrder();
+  const limits = getLimits();
+
+  // 🔥 MUITO IMPORTANTE: inicializar com o order
   const [selected, setSelected] = useState<string[]>(order.syrups);
 
   const handleToggle = (syrup: string) => {
-    if (selected.includes(syrup)) {
-      setSelected(selected.filter(s => s !== syrup));
-    } else {
-      setSelected([...selected, syrup]);
+    const alreadySelected = selected.includes(syrup);
+
+    // Remover
+    if (alreadySelected) {
+      setSelected(selected.filter((s) => s !== syrup));
+      return;
     }
+
+    // 🚫 BLOQUEIO REAL DO LIMITE
+    if (selected.length >= limits.syrups) {
+      toast.error(
+        `Você pode escolher no máximo ${limits.syrups} calda(s) para este tamanho.`
+      );
+      return;
+    }
+
+    // Adicionar
+    setSelected([...selected, syrup]);
   };
 
   const handleContinue = () => {
     updateSyrups(selected);
-    toast.success('Caldas selecionadas!');
-    navigate('/frutas');
+    toast.success("Caldas selecionadas!");
+    navigate("/frutas");
   };
 
   const handleSkip = () => {
     updateSyrups([]);
-    navigate('/frutas');
+    navigate("/frutas");
   };
 
   return (
@@ -53,37 +60,45 @@ const SyrupSelection = () => {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
+
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Escolha as caldas</h1>
             <p className="text-sm opacity-90">
-              Quantas quiser ({selected.length} selecionadas)
+              Máximo {limits.syrups} ({selected.length}/{limits.syrups})
             </p>
           </div>
+
           <Droplet className="w-8 h-8 text-accent" />
         </div>
+
         <StepIndicator currentStep={4} totalSteps={7} />
       </div>
 
       {/* Content */}
       <div className="flex-1 p-6 space-y-3 overflow-y-auto animate-slide-up">
-        {syrups.map((syrup) => (
-          <SelectionCard
-            key={syrup}
-            selected={selected.includes(syrup)}
-            onClick={() => handleToggle(syrup)}
-          >
-            <div className="text-center">
-              <h3 className="text-lg font-bold text-foreground">{syrup}</h3>
-            </div>
-          </SelectionCard>
-        ))}
+        {syrups.map((syrup) => {
+          const isSelected = selected.includes(syrup);
+          const isDisabled = !isSelected && selected.length >= limits.syrups;
+
+          return (
+            <SelectionCard
+              key={syrup}
+              selected={isSelected}
+              disabled={isDisabled}
+              onClick={() => handleToggle(syrup)}
+            >
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-foreground">{syrup}</h3>
+              </div>
+            </SelectionCard>
+          );
+        })}
       </div>
 
       {/* Footer */}
       <div className="p-6 bg-card border-t border-border space-y-2">
-        <ActionButton onClick={handleContinue}>
-          Continuar
-        </ActionButton>
+        <ActionButton onClick={handleContinue}>Continuar</ActionButton>
+
         {selected.length === 0 && (
           <button
             onClick={handleSkip}
