@@ -7,14 +7,24 @@ import SelectionCard from "@/components/SelectionCard";
 import ActionButton from "@/components/ActionButton";
 import { toast } from "sonner";
 
-const syrups = ["Chocolate", "Morango", "Caramelo", "Leite condensado", "Mel"];
+/* ⬇️ COLE AQUI TODAS AS SUAS CALDAS ORIGINAIS ⬇️ */
+const syrups = [
+  "Chocolate",
+  "Morango",
+  "Caramelo",
+  "Leite condensado",
+  "Limão",
+  "Kiwi",
+  "Mel",
+  "Menta",
+  // 👉 adicione TODAS as que você já tinha
+];
 
 const SyrupSelection = () => {
   const navigate = useNavigate();
   const { order, updateSyrups, getLimits } = useOrder();
   const limits = getLimits();
 
-  // 🔥 MUITO IMPORTANTE: inicializar com o order
   const [selected, setSelected] = useState<string[]>(order.syrups);
 
   const handleToggle = (syrup: string) => {
@@ -26,7 +36,7 @@ const SyrupSelection = () => {
       return;
     }
 
-    // 🚫 BLOQUEIO REAL DO LIMITE
+    // Limite de caldas (CORRETO)
     if (selected.length >= limits.syrups) {
       toast.error(
         `Você pode escolher no máximo ${limits.syrups} calda(s) para este tamanho.`
@@ -34,7 +44,6 @@ const SyrupSelection = () => {
       return;
     }
 
-    // Adicionar
     setSelected([...selected, syrup]);
   };
 
