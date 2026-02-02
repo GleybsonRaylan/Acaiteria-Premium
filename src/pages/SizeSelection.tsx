@@ -12,11 +12,11 @@ import acaiH2 from "@/assets/acai-h2.png";
 import acaiFamilia from "@/assets/acai-familia.png";
 
 const sizes: Size[] = [
-  { id: "300ml", name: "Copo 300ml", price: 13 },
-  { id: "400ml", name: "Copo 400ml", price: 15 },
-  { id: "500ml", name: "Tigela 500ml", price: 17 },
-  { id: "h2", name: "Marmita H2", price: 20 },
-  { id: "familia", name: "Tamanho Família", price: 32 },
+  { id: "300ml", name: "Copo 300ml", price: 13.99 },
+  { id: "400ml", name: "Copo 400ml", price: 14.99 },
+  { id: "500ml", name: "Tigela 500ml", price: 17.99 },
+  { id: "h2", name: "Marmita H2", price: 20.99 },
+  { id: "familia", name: "Tamanho Família", price: 32.99 },
 ];
 
 const sizeImages: Record<string, string> = {
